@@ -1,4 +1,6 @@
 require 'lfs';
-Directory = {
+Directory = {};
+
+function Directory.new = function(dir)
 	
-};
+end;

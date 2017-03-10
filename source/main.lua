@@ -2,33 +2,35 @@ function __DIR__()
 	local path = debug.getinfo(2,'S').source:match("@?(.*/)");
 	if(path) then return path; end;
 	return '';
-end
-function __FILE__() return debug.getinfo(2,'S').source end
-function __LINE__() return debug.getinfo(2, 'l').currentline end
-function __FUNC__() return debug.getinfo(1).name end
-
-function pos()
-    print("Line at "..__LINE__()..", FILE at "..__FILE__()..", in func: "..__FUNC__())
-end
+end;
 
 function import(file)
 	return require(__DIR__() .. file);
 end;
 
-local Log = import("log");
+local Log      = import("log");
 local FileInfo = import("fileinfo");
 
 require 'lfs';
 
 Log:write("Script starting.");
 
-local uploadDir = '/home/sean/dcim_test';
-local infoDir   = '/home/sean/flashair/data/fileinfo';
+local uploadDir = '/home/sean/dcim_test/';
+local infoDir   = './' .. __DIR__() .. '../data/fileinfo/';
+
+Log:write("Checking dir '" .. uploadDir .. '"...');
 
 for file in lfs.dir(uploadDir) do
-	if(not string.sub(file, 1, 1) == '.') then
-		fileInfo = FileInfo.new(file, '/home/sean/flashair/data/fileinfo/');
-		fileInfo:set('check', os.time());
+	if(string.sub(file, 1, 1) ~= '.') then
+		Log:write("Checking file '" .. uploadDir .. file .. '".');
+		fileInfo = FileInfo.new(file, uploadDir, infoDir);
+
+		if(not fileInfo.meta.exists) then
+			Log:write("Uploading '" .. uploadDir .. file .. '".');
+		end;
+
 		fileInfo:save();
 	end;
 end;
+
+Log:write("Script Completed.\n");
